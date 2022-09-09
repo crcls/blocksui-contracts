@@ -10,8 +10,22 @@ import 'solidity-coverage'
 import 'hardhat-deploy'
 import 'hardhat-deploy-ethers'
 
+const {
+  ETHERSCAN_API_KEY,
+  MAINNET_ALCHEMY_API,
+  GOERLI_ALCHEMY_API,
+  MUMBAI_ALCHEMY_API,
+  POLYGON_ALCHEMY_API,
+} = process.env
+
+const envAccounts = [
+  process.env.ACCOUNT_1!,
+  process.env.ACCOUNT_2!,
+  process.env.ACCOUNT_3!,
+]
+
 const config: HardhatUserConfig = {
-  solidity: "0.8.9",
+  solidity: '0.8.9',
   networks: {
     hardhat: {
       accounts: {
@@ -21,12 +35,31 @@ const config: HardhatUserConfig = {
     localhost: {
       live: false,
     },
-    rinkeby: {
-      url: process.env.RINKEBY_URL || '',
+    goerli: {
+      forking: {
+        url: `https://eth-goerli.g.alchemy.com/v2/${GOERLI_ALCHEMY_API}`,
+      },
+      url: `https://eth-goerli.g.alchemy.com/v2/${GOERLI_ALCHEMY_API}` || '',
       accounts: envAccounts,
     },
     mainnet: {
       url: process.env.MAINNET_URL,
+      accounts: envAccounts,
+    },
+    mumbai: {
+      forking: {
+        url: `https://polygon-mumbai.g.alchemy.com/v2/${MUMBAI_ALCHEMY_API}`,
+      },
+      url:
+        `https://polygon-mumbai.g.alchemy.com/v2/${MUMBAI_ALCHEMY_API}` || '',
+      accounts: envAccounts,
+    },
+    polygon: {
+      forking: {
+        url: `https://polygon-mainnet.g.alchemy.com/v2/${POLYGON_ALCHEMY_API}`,
+      },
+      url:
+        `https://polygon-mainnet.g.alchemy.com/v2/${POLYGON_ALCHEMY_API}` || '',
       accounts: envAccounts,
     },
   },
@@ -37,6 +70,6 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
-};
+}
 
-export default config;
+export default config
