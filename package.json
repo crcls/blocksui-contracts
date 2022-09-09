@@ -1,0 +1,66 @@
+{
+  "name": "blocksui-contracts",
+  "version": "0.0.1",
+  "description": "Solidity contracts for the Blocks UI Protocol",
+  "main": "index.js",
+  "scripts": {
+    "build": "hardhat clean && hardhat compile --no-typechain --show-stack-traces",
+    "start": "hardhat deploy --network localhost",
+    "test": "hardhat test",
+    "test:static": "slither ./contracts --solc-remaps 'erc721a=node_modules/erc721a @openzeppelin=node_modules/@openzeppelin @chainlink=node_modules/@chainlink' --exclude naming-convention,external-function,low-level-calls --buidler-ignore-compile",
+    "toolbox": "docker run -it --rm -v $PWD:/src trailofbits/eth-security-toolbox",
+    "manticore": "manticore ./contracts/*.sol --solc-remaps 'erc721a=node_modules/erc721a @openzeppelin=node_modules/@openzeppelin @chainlink=node_modules/@chainlink' --exclude naming-convention,external-function,low-level-calls --buidler-ignore-compile --contract CRCLSCatalystPass",
+    "eth:node": "hardhat node --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/crcls/blocksui-contracts.git"
+  },
+  "author": "CRCLS Networks, Inc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/crcls/blocksui-contracts/issues"
+  },
+  "homepage": "https://github.com/crcls/blocksui-contracts#readme",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.1.1",
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@openzeppelin/hardhat-upgrades": "^1.20.0",
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.16",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
+    "chai": "^4.3.6",
+    "dotenv": "^16.0.2",
+    "eslint": "^8.23.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.0.1",
+    "ethereum-waffle": "^3.4.4",
+    "ethers": "^5.7.0",
+    "hardhat": "^2.11.1",
+    "hardhat-deploy": "^0.11.14",
+    "hardhat-deploy-ethers": "^0.3.0-beta.13",
+    "hardhat-gas-reporter": "^1.0.9",
+    "merkletreejs": "^0.2.32",
+    "prettier": "^2.7.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.24",
+    "solhint": "^3.3.7",
+    "solidity-coverage": "^0.8.2",
+    "ts-node": "^10.9.1",
+    "typechain": "^8.1.0",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.4.1",
+    "@openzeppelin/contracts": "^4.7.3"
+  }
+}

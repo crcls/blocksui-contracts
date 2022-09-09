@@ -1,0 +1,10 @@
+root = true
+
+[*]
+indent_style = space
+
+[*.sol]
+indent_size = 4
+
+[*.ts]
+indent_size = 2
