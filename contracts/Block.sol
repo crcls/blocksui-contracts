@@ -7,4 +7,5 @@ struct Block {
     bytes32 encryptedKey;
     string metaURI;
     address owner;
+    string[] origins;
 }

@@ -26,9 +26,11 @@ contract BUIBlockNFT is ERC721, Ownable {
     );
 
     event BUIBlockDeprecated(uint256 tokenId);
+    event BUIBlockMetadataUpdated(uint256 tokenId);
+    event BUIBlockOriginRemoved(uint256 tokenId, string origin);
 
-    modifier onlyBlockOwner(bytes32 cid) {
-        _checkOwnership(cid, msg.sender);
+    modifier onlyBlockOwner(uint256 tokenId) {
+        _checkOwnership(tokenId, msg.sender);
         _;
     }
 
@@ -63,31 +65,78 @@ contract BUIBlockNFT is ERC721, Ownable {
         emit BUIBlockPublished(cid, bui);
     }
 
-    function updateMetaURI(bytes32 cid, string memory metaURI) external onlyBlockOwner(cid) {
-        _blocks[cid].metaURI = metaURI;
+    function updateMetaURI(uint256 tokenId, string memory metaURI) external onlyBlockOwner(tokenId) {
+        Block storage bui = _blockForToken[tokenId];
+        bui.metaURI = metaURI;
+
+        emit BUIBlockMetadataUpdated(tokenId);
     }
 
-    function setDeprecated(bytes32 cid, uint256 deprecateDate) external onlyBlockOwner(cid) {
-        _blocks[cid].deprecateDate = deprecateDate;
-        emit BUIBlockDeprecated(_tokenizedBlocks[cid]);
+    function setDeprecated(uint256 tokenId, uint256 deprecateDate) external onlyBlockOwner(tokenId) {
+        Block storage bui = _blockForToken[tokenId];
+        bui.deprecateDate = deprecateDate;
+
+        // TODO: use chainlink to auto burn this Block when the deprecateDate is reached.
+
+        emit BUIBlockDeprecated(tokenId);
     }
 
-    function blockForTokenId(uint256 tokenId) public view returns (bytes32 cid, bytes32 encryptedKey) {
-        require(_exists(tokenId), "Token does not exist");
+    function setOrigin(uint256 tokenId, string memory origin) external onlyBlockOwner(tokenId) {
+        Block storage bui = _blockForToken(tokenId);
 
-        bytes32 cid = _tokenizedBlocks[tokenId]
-        Block storage bui = _blocks[cid];
+        for (uint i = 0; i < bui.origins.length; i++) {
+            if (bui.origins[i] == origin) {
+                revert("Origin already exists");
+            }
+        }
 
-        return cid, _blocks[cid].encryptedKey;
+        bui.origins.push(origin)
+    }
+
+    function removeOrigin(uint256 tokenId, string memory origin) external onlyBlockOwner(tokenId) {
+        Block storage bui = _blockForToken(tokenId);
+
+        string[] origins = bui.origins;
+
+        for (uint i = 0; i < origins.length; i++) {
+            if (origins[i] == origin) {
+                // Overwrite and shift remaining origins
+                for (uint j = i; j < origins.length-1; j++) {
+                    origins[j] = origins[j+1];
+                }
+                payees.pop();
+
+                // Save the new origins array
+                bui.origins = origins;
+
+                emit BUIBlockOriginRemoved(tokenId, origin);
+                break;
+            }
+        }
+    }
+
+    function blockForToken(uint256 tokenId) public view returns (bytes32 cid, bytes32 encryptedKey, string[] origins) {
+        Block storage bui = _blockForToken(tokenId);
+
+        return _tokenizedBlock[tokenId], bui.encryptedKey, bui.origins;
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        _requireMinted(tokenId);
-        return _blocks[_tokenizedBlocks[tokenId]].metaURI;
+        Block storage bui = _blockForToken(tokenId);
+        return bui.metaURI;
     }
 
-    function _checkOwnership(bytes32 cid, address account) internal view virtual {
-        if (blocks[cid].owner != account) {
+    function setPublishPrice(uint256 _publishPrice) external onlyOwner {
+        publishPrice = _publishPrice;
+    }
+
+    function _blockForToken(uint256 tokenId) internal view returns (bytes32, Block) {
+        require(_exists(tokenId), "Token does not exist");
+        return _blocks[_tokenizedBlocks[tokenId]];
+    }
+
+    function _checkOwnership(uint256 tokenId, address account) internal view {
+        if (ownerOf(tokenId) != account) {
             revert(
                 string(
                     abi.encodePacked(
