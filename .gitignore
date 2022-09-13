@@ -2,10 +2,10 @@ node_modules
 .env
 coverage
 coverage.json
-typechain
 arweave-*
 mcore*
 
 #Hardhat files
 cache
 artifacts
+typechain-types

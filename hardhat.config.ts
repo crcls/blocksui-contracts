@@ -25,7 +25,7 @@ const envAccounts = [
 ]
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.9',
+  solidity: '0.8.17',
   networks: {
     hardhat: {
       accounts: {
@@ -39,27 +39,25 @@ const config: HardhatUserConfig = {
       forking: {
         url: `https://eth-goerli.g.alchemy.com/v2/${GOERLI_ALCHEMY_API}`,
       },
-      url: `https://eth-goerli.g.alchemy.com/v2/${GOERLI_ALCHEMY_API}` || '',
+      url: `https://eth-goerli.g.alchemy.com/v2/${GOERLI_ALCHEMY_API}`,
       accounts: envAccounts,
     },
     mainnet: {
-      url: process.env.MAINNET_URL,
+      url: `https://eth-mainnet.g.alchemy.com/v2/${MAINNET_ALCHEMY_API}`,
       accounts: envAccounts,
     },
     mumbai: {
       forking: {
         url: `https://polygon-mumbai.g.alchemy.com/v2/${MUMBAI_ALCHEMY_API}`,
       },
-      url:
-        `https://polygon-mumbai.g.alchemy.com/v2/${MUMBAI_ALCHEMY_API}` || '',
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${MUMBAI_ALCHEMY_API}`,
       accounts: envAccounts,
     },
     polygon: {
       forking: {
         url: `https://polygon-mainnet.g.alchemy.com/v2/${POLYGON_ALCHEMY_API}`,
       },
-      url:
-        `https://polygon-mainnet.g.alchemy.com/v2/${POLYGON_ALCHEMY_API}` || '',
+      url: `https://polygon-mainnet.g.alchemy.com/v2/${POLYGON_ALCHEMY_API}`,
       accounts: envAccounts,
     },
   },

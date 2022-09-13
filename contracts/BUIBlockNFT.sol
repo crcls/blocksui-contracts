@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+import "./IBUIBlockNFT.sol";
 import "./Block.sol";
 
-contract BUIBlockNFT is ERC721, Ownable {
+contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -19,15 +20,6 @@ contract BUIBlockNFT is ERC721, Ownable {
 
     // Token ID => CID
     mapping(uint256 => bytes32) private _tokenizedBlocks;
-
-    event BUIBlockPublished(
-        bytes32 cid,
-        Block data
-    );
-
-    event BUIBlockDeprecated(uint256 tokenId);
-    event BUIBlockMetadataUpdated(uint256 tokenId);
-    event BUIBlockOriginRemoved(uint256 tokenId, string origin);
 
     modifier onlyBlockOwner(uint256 tokenId) {
         _checkOwnership(tokenId, msg.sender);
@@ -40,8 +32,8 @@ contract BUIBlockNFT is ERC721, Ownable {
 
     function publish(
         bytes32 cid,
-        bytes32 encryptedKey,
-        string memory metaURI,
+        string memory encryptedKey,
+        string memory metaURI
     ) external payable {
         Block storage bui = _blocks[cid];
 
@@ -66,14 +58,14 @@ contract BUIBlockNFT is ERC721, Ownable {
     }
 
     function updateMetaURI(uint256 tokenId, string memory metaURI) external onlyBlockOwner(tokenId) {
-        Block storage bui = _blockForToken[tokenId];
+        Block storage bui = _blockForToken(tokenId);
         bui.metaURI = metaURI;
 
         emit BUIBlockMetadataUpdated(tokenId);
     }
 
     function setDeprecated(uint256 tokenId, uint256 deprecateDate) external onlyBlockOwner(tokenId) {
-        Block storage bui = _blockForToken[tokenId];
+        Block storage bui = _blockForToken(tokenId);
         bui.deprecateDate = deprecateDate;
 
         // TODO: use chainlink to auto burn this Block when the deprecateDate is reached.
@@ -85,26 +77,30 @@ contract BUIBlockNFT is ERC721, Ownable {
         Block storage bui = _blockForToken(tokenId);
 
         for (uint i = 0; i < bui.origins.length; i++) {
-            if (bui.origins[i] == origin) {
+            bytes32 existingOrigin = keccak256(abi.encodePacked(bui.origins[i]));
+
+            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
                 revert("Origin already exists");
             }
         }
 
-        bui.origins.push(origin)
+        bui.origins.push(origin);
     }
 
     function removeOrigin(uint256 tokenId, string memory origin) external onlyBlockOwner(tokenId) {
         Block storage bui = _blockForToken(tokenId);
 
-        string[] origins = bui.origins;
+        string[] storage origins = bui.origins;
 
         for (uint i = 0; i < origins.length; i++) {
-            if (origins[i] == origin) {
+            bytes32 matchingOrigin = keccak256(abi.encodePacked(bui.origins[i]));
+
+            if (matchingOrigin == keccak256(abi.encodePacked(origin))) {
                 // Overwrite and shift remaining origins
                 for (uint j = i; j < origins.length-1; j++) {
                     origins[j] = origins[j+1];
                 }
-                payees.pop();
+                origins.pop();
 
                 // Save the new origins array
                 bui.origins = origins;
@@ -115,10 +111,18 @@ contract BUIBlockNFT is ERC721, Ownable {
         }
     }
 
-    function blockForToken(uint256 tokenId) public view returns (bytes32 cid, bytes32 encryptedKey, string[] origins) {
+    function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string memory encryptedKey, string[] memory origins) {
         Block storage bui = _blockForToken(tokenId);
 
-        return _tokenizedBlock[tokenId], bui.encryptedKey, bui.origins;
+        return (_tokenizedBlocks[tokenId], bui.encryptedKey, bui.origins);
+    }
+
+    function ownerOfBlock(bytes32 cid, address owner) external view returns (bool) {
+        return _blocks[cid].owner == owner;
+    }
+
+    function blockExists(bytes32 cid) external view returns (bool) {
+        return _blocks[cid].owner != address(0);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
@@ -130,8 +134,9 @@ contract BUIBlockNFT is ERC721, Ownable {
         publishPrice = _publishPrice;
     }
 
-    function _blockForToken(uint256 tokenId) internal view returns (bytes32, Block) {
+    function _blockForToken(uint256 tokenId) internal view returns (Block storage) {
         require(_exists(tokenId), "Token does not exist");
+
         return _blocks[_tokenizedBlocks[tokenId]];
     }
 
@@ -143,7 +148,7 @@ contract BUIBlockNFT is ERC721, Ownable {
                         "BlocksUI: account ",
                         Strings.toHexString(account),
                         " is not the owner of ",
-                        cid
+                        tokenId
                     )
                 )
             );
