@@ -13,7 +13,7 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    uint256 public publishPrice;
+    uint256 public publishPrice = 0.1 ether;
 
     // Published Blocks
     mapping(bytes32 => Block) private _blocks;
@@ -51,7 +51,7 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
         bui.owner = payable(msg.sender);
         bui.tokenId = tokenId;
 
-        _tokenizedBlocks[tokenId] = cid;
+        _tokenizedBlocks[tokenId + 1] = cid;
         _tokenIds.increment();
 
         emit BUIBlockPublished(cid, bui);
@@ -148,7 +148,7 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
                         "BlocksUI: account ",
                         Strings.toHexString(account),
                         " is not the owner of ",
-                        tokenId
+                        Strings.toString(tokenId)
                     )
                 )
             );

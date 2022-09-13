@@ -16,32 +16,16 @@ contract BUINodeStaking is Ownable {
     }
 
     function register() external payable {
-        require(msg.value >= _stakingCost, "Insufficient funds");
+        require(msg.value >= _stakingCost, "Not enough stake");
         require(_stake[msg.sender] == 0, "Already registered");
 
-        bytes32 hashedNode = keccak256(abi.encodePacked(msg.sender));
-        _hashedNodes.push(hashedNode);
         _stake[msg.sender] += msg.value;
     }
 
     function unregister() external {
         require(_stake[msg.sender] > 0, "No stake found");
 
-        bytes32 hashedNode = keccak256(abi.encodePacked(msg.sender));
-
-        bool nodeFound = false;
-        for (uint i = 0; i < _hashedNodes.length; i++) {
-            if (_hashedNodes[i] == hashedNode) {
-                nodeFound = true;
-                for (uint j = i; j < _hashedNodes.length-1; j++) {
-                    _hashedNodes[j] = _hashedNodes[j+1];
-                }
-
-                _hashedNodes.pop();
-            }
-        }
-
-        require(nodeFound, "Node not found");
+        _stake[msg.sender] = 0;
         payable(msg.sender).transfer(_stake[msg.sender]);
     }
 

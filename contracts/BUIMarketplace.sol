@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "./IBUIMarketplace.sol";
 import "./IBUIBlockNFT.sol";
 import "./License.sol";
 import "./Block.sol";
 import "./Listing.sol";
 
-contract BUIMarketplace is IBUIMarketplace {
+contract BUIMarketplace is IBUIMarketplace, Ownable {
 
     // Map of tokenIds listed for an account
     mapping(address => uint256[]) private _ownedListings;
@@ -20,8 +22,9 @@ contract BUIMarketplace is IBUIMarketplace {
 
     uint256 public listingPrice = 0.01 ether;
 
-    constructor(address buiBlockAddress) {
+    constructor(address buiBlockAddress, uint256 listingPrice_) {
         _buiBlockContract = IBUIBlockNFT(buiBlockAddress);
+        listingPrice = listingPrice_;
     }
 
     function listBlock(
@@ -31,7 +34,7 @@ contract BUIMarketplace is IBUIMarketplace {
         uint256 tokenId,
         bool licensable
     ) external payable {
-        require(msg.value >= listingPrice, "Insufficient funds");
+        require(msg.value >= listingPrice, "Insufficient listing funds");
         require(_buiBlockContract.ownerOf(tokenId) == msg.sender, "Unauthorized: Not the owner.");
         require(_listings[tokenId].owner == address(0), "Listing already exists");
 
@@ -61,17 +64,27 @@ contract BUIMarketplace is IBUIMarketplace {
         listing = _listings[tokenId];
     }
 
-    function getListings(uint256 amount, uint256 page) external view returns (Listing[] memory listings) {
+    function getListings(uint256 amount, uint256 page) external view returns (Listing[] memory) {
         uint256 max = (amount * page) + amount;
 
         if (max >= _listedTokenIds.length) {
             max = _listedTokenIds.length;
         }
 
+        Listing[] memory listings = new Listing[](amount);
+
         uint256 j = 0;
         for (uint256 i = amount * page; i < max; i++) {
             listings[j] = _listings[_listedTokenIds[i]];
             j++;
         }
+
+        return listings;
     }
+
+    function setListingPrice(uint256 listingPrice_) external onlyOwner {
+        listingPrice = listingPrice_;
+    }
+
+    // TODO: add purchase functionality. Possibly using Seaport and creating a conduit.
 }
