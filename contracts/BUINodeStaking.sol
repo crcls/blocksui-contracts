@@ -11,8 +11,6 @@ contract BUINodeStaking is Ownable {
 
     // TODO: add more security to prevent anyone from joining the stake pool and gaining access to the decryption keys in LitProtocol
 
-    bytes32[] public _hashedNodes;
-
     constructor(uint256 stakingCost) {
         _stakingCost = stakingCost;
     }
@@ -48,15 +46,7 @@ contract BUINodeStaking is Ownable {
     }
 
     function verify(address node) external view returns (bool) {
-        bytes32 hashedNode = keccak256(abi.encodePacked(node));
-
-        for (uint i = 0; i < _hashedNodes.length; i++) {
-            if (_hashedNodes[i] == hashedNode) {
-                return true;
-            }
-        }
-
-        return false;
+        return _stake[node] > 0;
     }
 
     function setStakingCost(uint256 stakingCost) external onlyOwner {
