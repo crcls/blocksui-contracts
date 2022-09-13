@@ -1,3 +1,0 @@
-[submodule "contracts/lib/murky"]
-	path = contracts/lib/murky
-	url = git@github.com:dmfxyz/murky.git
