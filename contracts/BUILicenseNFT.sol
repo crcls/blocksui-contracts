@@ -11,8 +11,6 @@ import "./Block.sol";
 import "./License.sol";
 import "./Listing.sol";
 
-import "hardhat/console.sol";
-
 contract BUILicenseNFT is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -70,8 +68,6 @@ contract BUILicenseNFT is ERC721 {
 
         // Transfer the cost to the Block owner
         listing.owner.transfer(cost);
-
-        console.log('transferred');
 
         emit BUILicensePurchased(tokenId, duration, cid);
     }
