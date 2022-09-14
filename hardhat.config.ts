@@ -18,6 +18,8 @@ const {
   POLYGON_ALCHEMY_API,
 } = process.env
 
+const { MAINNET_ETHERSCAN, MUMBAI_POLYSCAN } = process.env
+
 const envAccounts = [
   process.env.ACCOUNT_1!,
   process.env.ACCOUNT_2!,
@@ -66,7 +68,10 @@ const config: HardhatUserConfig = {
     currency: 'USD',
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: MAINNET_ETHERSCAN,
+      polygonMumbai: MUMBAI_POLYSCAN,
+    },
   },
 }
 
