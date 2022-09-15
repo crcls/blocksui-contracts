@@ -10,6 +10,20 @@ import 'solidity-coverage'
 import 'hardhat-deploy'
 import 'hardhat-deploy-ethers'
 
+import { Web3Storage, getFilesFromPath } from 'web3.storage'
+
+task(
+  'ipfs-deploy',
+  'Deploy the contract ABI to web3.storage',
+  async (taskArgs, hre) => {
+    const client = new Web3Storage({ token: process.env.WEB3STORAGE_TOKEN })
+    const files = await getFilesFromPath('./ipfs')
+    const dirCID = await client.put(files)
+
+    console.log('ABIs uploaded to:', dirCID)
+  }
+)
+
 const {
   ETHERSCAN_API_KEY,
   MAINNET_ALCHEMY_API,
@@ -75,4 +89,5 @@ const config: HardhatUserConfig = {
   },
 }
 
+export default config
 export default config
