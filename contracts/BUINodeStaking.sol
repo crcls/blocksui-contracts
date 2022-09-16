@@ -7,7 +7,15 @@ contract BUINodeStaking is Ownable {
 
     uint256 private _stakingCost = 0.1 ether;
 
-    mapping(address => uint256) private _stake;
+    struct Node {
+        address payable owner;
+        uint256 stake;
+        bytes4 ip;
+    }
+
+    mapping(address => Node) private _nodes;
+
+    event NodeRegistered(Node node);
 
     // TODO: add more security to prevent anyone from joining the stake pool and gaining access to the decryption keys in LitProtocol
 
@@ -15,22 +23,35 @@ contract BUINodeStaking is Ownable {
         _stakingCost = stakingCost;
     }
 
-    function register() external payable {
-        require(msg.value >= _stakingCost, "Not enough stake");
-        require(_stake[msg.sender] == 0, "Already registered");
+    function register(bytes4 ip) external payable {
+        Node storage node = _nodes[msg.sender];
 
-        _stake[msg.sender] += msg.value;
+        if (node.owner == address(0)) {
+            node.owner = payable(msg.sender);
+        }
+
+        if (node.stake < _stakingCost) {
+            require(msg.value >= (_stakingCost - node.stake), "Not enough stake");
+            node.stake += msg.value;
+        }
+
+        node.ip = ip;
     }
 
     function unregister() external {
-        require(_stake[msg.sender] > 0, "No stake found");
+        require(_nodes[msg.sender].stake > 0, "No stake found");
 
-        _stake[msg.sender] = 0;
-        payable(msg.sender).transfer(_stake[msg.sender]);
+        _nodes[msg.sender].stake = 0;
+        _nodes[msg.sender].ip = 0;
+        payable(msg.sender).transfer(_nodes[msg.sender].stake);
+    }
+
+    function balance() external view returns (uint256) {
+        return _nodes[msg.sender].stake;
     }
 
     function verify(address node) external view returns (bool) {
-        return _stake[node] > 0;
+        return _nodes[node].stake > 0 && _nodes[node].ip != 0;
     }
 
     function setStakingCost(uint256 stakingCost) external onlyOwner {

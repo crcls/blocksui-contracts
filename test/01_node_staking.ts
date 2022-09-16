@@ -2,8 +2,11 @@ import { Contract } from '@ethersproject/contracts'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
+import { bytes4ForIpString } from '../helpers/bytes'
+
 const nodeAccount = ethers.Wallet.createRandom()
 const nodeSigner = nodeAccount.connect(ethers.provider)
+const ipBytes = bytes4ForIpString('127.0.0.1')
 
 async function fundNode(ether: string) {
   const [deployer] = await ethers.getSigners()
@@ -32,7 +35,7 @@ describe('BUINodeStaking', function () {
     await fundNode('0.6')
 
     await expect(
-      contract.connect(nodeSigner).register({
+      contract.connect(nodeSigner).register(ipBytes, {
         value: ethers.utils.parseEther('0.5'),
       })
     ).to.be.revertedWith('Not enough stake')
@@ -41,7 +44,7 @@ describe('BUINodeStaking', function () {
   it('succeeds to register with sufficient stake', async () => {
     await fundNode('1.5')
 
-    const tx = contract.connect(nodeSigner).register({
+    const tx = contract.connect(nodeSigner).register(ipBytes, {
       value: ethers.utils.parseEther('1'),
     })
 
@@ -49,14 +52,11 @@ describe('BUINodeStaking', function () {
     expect(tx).to.changeEtherBalance(nodeAccount, '-1')
   })
 
-  it('fails to stake twice', async () => {
+  it('succeeds to register twice without needed to stake again', async () => {
     await fundNode('1.5')
 
-    await expect(
-      contract.connect(nodeSigner).register({
-        value: ethers.utils.parseEther('1'),
-      })
-    ).to.be.revertedWith('Already registered')
+    await expect(contract.connect(nodeSigner).register(ipBytes)).to.not.be
+      .reverted
   })
 
   it('succeeds to verify a staked node', async () => {
@@ -86,7 +86,7 @@ describe('BUINodeStaking', function () {
     await contract.setStakingCost(ethers.utils.parseEther('0.1'))
 
     await expect(
-      contract.connect(nodeSigner).register({
+      contract.connect(nodeSigner).register(ipBytes, {
         value: ethers.utils.parseEther('0.1'),
       })
     ).to.not.be.reverted

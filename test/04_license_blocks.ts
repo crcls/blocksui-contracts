@@ -2,7 +2,7 @@ import { Contract } from '@ethersproject/contracts'
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 
-import { getBytes32FromIpfsHash } from '../helpers/bytes32'
+import { getBytes32FromIpfsHash } from '../helpers/bytes'
 
 const ipfsHash = 'QmWmyoMoctfbAaiEs2G46gpeUmhqFRDW6KWo64y5r581Vz'
 const cid = getBytes32FromIpfsHash(ipfsHash)
