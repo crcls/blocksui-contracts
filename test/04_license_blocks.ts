@@ -18,7 +18,7 @@ describe('BUILicenseNFT', function () {
     blockContract = await BUIBlockNFT.deploy(ethers.utils.parseEther('0.5'))
     await blockContract.deployed()
 
-    await blockContract.publish(cid, 'testkey', 'ipfs://test', {
+    await blockContract.publish(cid, 'ipfs://test', {
       value: ethers.utils.parseEther('0.5'),
     })
 
@@ -65,7 +65,6 @@ describe('BUILicenseNFT', function () {
 
     await blockContract.publish(
       getBytes32FromIpfsHash('QmTBV6zgUqwTPNWSRYL5W9dmcHzYxosvgKgno9obB3EuU4'),
-      'testkey',
       'ipfs://test',
       {
         value: ethers.utils.parseEther('0.5'),

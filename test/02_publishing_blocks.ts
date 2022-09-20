@@ -52,7 +52,7 @@ describe('BUIBlockNFT', function () {
   describe('Publishing', function () {
     it('fails with insufficient funds', async () => {
       await expect(
-        contract.publish(cid, 'testkey', 'ipfs://test', {
+        contract.publish(cid, 'ipfs://test', {
           value: ethers.utils.parseEther('0.5'),
         })
       ).to.be.revertedWith('Insufficient funds to publish')
@@ -61,7 +61,7 @@ describe('BUIBlockNFT', function () {
     it('succeeds to publish a block', async () => {
       const [acc] = await ethers.getSigners()
 
-      const tx = contract.publish(cid, 'testkey', 'ipfs://test', {
+      const tx = contract.publish(cid, 'ipfs://test', {
         value: ethers.utils.parseEther('1'),
       })
 
@@ -103,10 +103,9 @@ describe('BUIBlockNFT', function () {
 
     it('returns the proper block values', async () => {
       await contract.setOrigin(1, 'http://example.com')
-      const [cid, encryptedKey, origins] = await contract.blockForToken(1)
+      const [cid, origins] = await contract.blockForToken(1)
 
       expect(getIpfsHashFromBytes32(cid)).to.equal(ipfsHash)
-      expect(encryptedKey).to.equal('testkey')
       expect(origins.length).to.equal(1)
       expect(origins[0]).to.equal('http://example.com')
     })

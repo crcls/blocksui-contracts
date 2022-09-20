@@ -32,7 +32,6 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
 
     function publish(
         bytes32 cid,
-        string memory encryptedKey,
         string memory metaURI
     ) external payable {
         Block storage bui = _blocks[cid];
@@ -46,7 +45,6 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
 
         _safeMint(msg.sender, tokenId + 1);
 
-        bui.encryptedKey = encryptedKey;
         bui.metaURI = metaURI;
         bui.owner = payable(msg.sender);
         bui.tokenId = tokenId;
@@ -111,10 +109,10 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
         }
     }
 
-    function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string memory encryptedKey, string[] memory origins) {
+    function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string[] memory origins) {
         Block storage bui = _blockForToken(tokenId);
 
-        return (_tokenizedBlocks[tokenId], bui.encryptedKey, bui.origins);
+        return (_tokenizedBlocks[tokenId], bui.origins);
     }
 
     function ownerOfBlock(bytes32 cid, address owner) external view returns (bool) {

@@ -16,7 +16,7 @@ describe('BUIMarketplace', function () {
     blockContract = await BUIBlockNFT.deploy(ethers.utils.parseEther('0.5'))
     await blockContract.deployed()
 
-    await blockContract.publish(cid, 'testkey', 'ipfs://test', {
+    await blockContract.publish(cid, 'ipfs://test', {
       value: ethers.utils.parseEther('0.5'),
     })
 

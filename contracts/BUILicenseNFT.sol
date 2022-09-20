@@ -32,7 +32,7 @@ contract BUILicenseNFT is ERC721 {
         require(_blockNFTs.ownerOf(blockId) != msg.sender, "License not required for Block owner");
 
         Listing memory listing = _marketplace.listingForTokenId(blockId);
-        (bytes32 cid,, string[] memory origins) = _blockNFTs.blockForToken(blockId);
+        (bytes32 cid, string[] memory origins) = _blockNFTs.blockForToken(blockId);
 
         for (uint i = 0; i < origins.length; i++) {
             bytes32 existingOrigin = keccak256(abi.encodePacked(origins[i]));
