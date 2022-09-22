@@ -109,10 +109,18 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
         }
     }
 
-    function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string[] memory origins) {
-        Block storage bui = _blockForToken(tokenId);
+    function originAuthorized(bytes32 cid, string calldata origin) external view returns (bool) {
+        Block storage bui = _blocks[cid];
 
-        return (_tokenizedBlocks[tokenId], bui.origins);
+        for (uint i = 0; i < bui.origins.length; i++) {
+            bytes32 existingOrigin = keccak256(abi.encodePacked(bui.origins[i]));
+
+            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function ownerOfBlock(bytes32 cid, address owner) external view returns (bool) {
@@ -121,6 +129,12 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
 
     function blockExists(bytes32 cid) external view returns (bool) {
         return _blocks[cid].owner != address(0);
+    }
+
+    function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string[] memory origins) {
+        Block storage bui = _blockForToken(tokenId);
+
+        return (_tokenizedBlocks[tokenId], bui.origins);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {

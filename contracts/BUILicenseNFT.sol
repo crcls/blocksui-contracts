@@ -83,4 +83,17 @@ contract BUILicenseNFT is ERC721 {
 
         return false;
     }
+
+    function originAuthorized(bytes32 cid, string calldata origin) external view returns (bool) {
+        for (uint i = 0; i < _licensesForBlock[cid].length; i++) {
+            License storage license = _licenses[_licensesForBlock[cid][i]];
+            bytes32 existingOrigin = keccak256(abi.encodePacked(license.origin));
+
+            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

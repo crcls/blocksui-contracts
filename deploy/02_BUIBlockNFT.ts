@@ -20,7 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   console.log('Args', PRICE.toString())
   console.log('Transaction Hash:', transactionHash)
-  console.log('BUINodeStaking deployed to:', contract.address)
+  console.log('Contract deployed to:', contract.address)
   console.log('Cost to deploy:', ethers.utils.formatEther(gasUsed))
 }
 
