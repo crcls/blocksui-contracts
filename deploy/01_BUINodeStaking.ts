@@ -5,6 +5,37 @@ import { DeployFunction } from 'hardhat-deploy/types'
 
 const STAKE = ethers.utils.parseEther('0.1')
 
+const conditions = [
+  {
+    contractAddress: '',
+    functionName: 'verify',
+    functionParams: [':userAddress'],
+    functionAbi: {
+      inputs: [
+        {
+          name: 'node',
+          type: 'address',
+        },
+      ],
+      name: 'verify',
+      outputs: [
+        {
+          name: '',
+          type: 'bool',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    chain,
+    returnValueTest: {
+      key: '',
+      comparator: '=',
+      value: 'true',
+    },
+  },
+]
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const Contract = await hre.ethers.getContractFactory('BUINodeStaking')
 

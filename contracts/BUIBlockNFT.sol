@@ -30,6 +30,11 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
         publishPrice = _publishPrice;
     }
 
+    function withdraw() external onlyOwner() {
+        uint balance = address(this).balance;
+        payable(owner()).transfer(balance);
+    }
+
     function publish(
         bytes32 cid,
         string memory metaURI

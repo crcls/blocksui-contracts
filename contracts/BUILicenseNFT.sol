@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./IBUIMarketplace.sol";
 import "./IBUIBlockNFT.sol";
@@ -11,7 +12,7 @@ import "./Block.sol";
 import "./License.sol";
 import "./Listing.sol";
 
-contract BUILicenseNFT is ERC721 {
+contract BUILicenseNFT is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -25,6 +26,11 @@ contract BUILicenseNFT is ERC721 {
     constructor(address marketplaceAddress, address blocksNFTAddress) ERC721("Blocks UI License", "BUIL") {
         _marketplace = IBUIMarketplace(marketplaceAddress);
         _blockNFTs = IBUIBlockNFT(blocksNFTAddress);
+    }
+
+    function withdraw() external onlyOwner() {
+        uint balance = address(this).balance;
+        payable(owner()).transfer(balance);
     }
 
     function purchaseLicense(uint256 blockId, uint256 duration, string memory origin) external payable {
