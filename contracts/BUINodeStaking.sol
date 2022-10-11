@@ -25,11 +25,11 @@ contract BUINodeStaking is Ownable {
     }
 
     function withdraw() external onlyOwner() {
-        uint256 balance = address(this).balance;
+        uint256 bal = address(this).balance;
         uint256 staked = totalStaked();
 
-        if (balance > staked) {
-            payable(owner()).transfer(balance - staked);
+        if (bal > staked) {
+            payable(owner()).transfer(bal - staked);
         }
     }
 

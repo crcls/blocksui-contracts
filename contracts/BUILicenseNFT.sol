@@ -78,7 +78,7 @@ contract BUILicenseNFT is ERC721, Ownable {
         emit BUILicensePurchased(tokenId, duration, cid);
     }
 
-    function verify(bytes32 cid, address owner) public view returns (bool) {
+    function verifyOwner(bytes32 cid, address owner) public view returns (bool) {
         for (uint i = 0; i < _licensesForBlock[cid].length; i++) {
             License storage license = _licenses[_licensesForBlock[cid][i]];
 

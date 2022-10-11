@@ -128,7 +128,7 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
         return false;
     }
 
-    function ownerOfBlock(bytes32 cid, address owner) external view returns (bool) {
+    function verifyOwner(bytes32 cid, address owner) external view returns (bool) {
         return _blocks[cid].owner == owner;
     }
 
