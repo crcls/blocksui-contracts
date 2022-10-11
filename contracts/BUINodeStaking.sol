@@ -13,7 +13,8 @@ contract BUINodeStaking is Ownable {
         bytes4 ip;
     }
 
-    mapping(address => Node) private _nodes;
+    mapping(address => Node) private _nodeByAddress;
+    Node[] private _nodes;
 
     event NodeRegistrationChanged(Node node, string status);
 
@@ -23,8 +24,23 @@ contract BUINodeStaking is Ownable {
         stakingCost = stakingCost_;
     }
 
+    function withdraw() external onlyOwner() {
+        uint256 bal = address(this).balance;
+        uint256 staked = totalStaked();
+
+        if (bal > staked) {
+            payable(owner()).transfer(bal - staked);
+        }
+    }
+
+    function totalStaked() public view returns (uint256 total) {
+        for (uint i = 0; i < _nodes.length; i++) {
+            total += _nodes[i].stake;
+        }
+    }
+
     function register(bytes4 ip) external payable {
-        Node storage node = _nodes[msg.sender];
+        Node storage node = _nodeByAddress[msg.sender];
 
         if (node.owner == address(0)) {
             node.owner = payable(msg.sender);
@@ -36,29 +52,39 @@ contract BUINodeStaking is Ownable {
         }
 
         node.ip = ip;
+        _nodes.push(node);
 
         emit NodeRegistrationChanged(node, "registered");
     }
 
     function unregister() external {
-        require(_nodes[msg.sender].stake > 0, "No stake found");
+        require(_nodeByAddress[msg.sender].stake > 0, "No stake found");
 
-        Node storage node = _nodes[msg.sender];
+        Node storage node = _nodeByAddress[msg.sender];
         uint256 stake = node.stake;
 
-        _nodes[msg.sender].stake = 0;
-        _nodes[msg.sender].ip = 0;
+        for (uint i = 0; i < _nodes.length; i++) {
+            if (_nodes[i].owner == msg.sender) {
+                for (uint j = i; j < _nodes.length-1; j++) {
+                    _nodes[j] = _nodes[j+1];
+                }
+                _nodes.pop();
+            }
+        }
+
+        _nodeByAddress[msg.sender].stake = 0;
+        _nodeByAddress[msg.sender].ip = 0;
         payable(msg.sender).transfer(stake);
 
         emit NodeRegistrationChanged(node, "unregistered");
     }
 
     function balance(address node) external view returns (uint256) {
-        return _nodes[node].stake;
+        return _nodeByAddress[node].stake;
     }
 
     function verify(address node) external view returns (bool) {
-        return _nodes[node].stake > 0 && _nodes[node].ip != 0;
+        return _nodeByAddress[node].stake > 0 && _nodeByAddress[node].ip != 0;
     }
 
     function setStakingCost(uint256 stakingCost_) external onlyOwner {

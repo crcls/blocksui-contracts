@@ -27,6 +27,11 @@ contract BUIMarketplace is IBUIMarketplace, Ownable {
         listingPrice = listingPrice_;
     }
 
+    function withdraw() external onlyOwner() {
+        uint balance = address(this).balance;
+        payable(owner()).transfer(balance);
+    }
+
     function listBlock(
         string memory metaDataURI,
         uint256 pricePerDay,

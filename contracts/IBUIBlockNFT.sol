@@ -17,7 +17,7 @@ interface IBUIBlockNFT is IERC721 {
 
     function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string[] memory origins);
 
-    function ownerOfBlock(bytes32 cid, address owner) external view returns (bool);
+    function verifyOwner(bytes32 cid, address owner) external view returns (bool);
 
     function blockExists(bytes32 cid) external view returns (bool);
 }

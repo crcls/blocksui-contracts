@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./IBUIMarketplace.sol";
 import "./IBUIBlockNFT.sol";
@@ -11,7 +12,7 @@ import "./Block.sol";
 import "./License.sol";
 import "./Listing.sol";
 
-contract BUILicenseNFT is ERC721 {
+contract BUILicenseNFT is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -25,6 +26,11 @@ contract BUILicenseNFT is ERC721 {
     constructor(address marketplaceAddress, address blocksNFTAddress) ERC721("Blocks UI License", "BUIL") {
         _marketplace = IBUIMarketplace(marketplaceAddress);
         _blockNFTs = IBUIBlockNFT(blocksNFTAddress);
+    }
+
+    function withdraw() external onlyOwner() {
+        uint balance = address(this).balance;
+        payable(owner()).transfer(balance);
     }
 
     function purchaseLicense(uint256 blockId, uint256 duration, string memory origin) external payable {
@@ -72,11 +78,24 @@ contract BUILicenseNFT is ERC721 {
         emit BUILicensePurchased(tokenId, duration, cid);
     }
 
-    function verify(bytes32 cid, address owner) public view returns (bool) {
+    function verifyOwner(bytes32 cid, address owner) public view returns (bool) {
         for (uint i = 0; i < _licensesForBlock[cid].length; i++) {
             License storage license = _licenses[_licensesForBlock[cid][i]];
 
             if (license.expirationDate <= block.timestamp && license.owner == owner) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function originAuthorized(bytes32 cid, string calldata origin) external view returns (bool) {
+        for (uint i = 0; i < _licensesForBlock[cid].length; i++) {
+            License storage license = _licenses[_licensesForBlock[cid][i]];
+            bytes32 existingOrigin = keccak256(abi.encodePacked(license.origin));
+
+            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
                 return true;
             }
         }
