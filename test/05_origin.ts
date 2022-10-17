@@ -58,11 +58,12 @@ describe('BUIOriginRegistry', function () {
   })
 
   it('returns a list of origins for sender', async () => {
+    const [acc] = await ethers.getSigners()
     await contract.register('https://crcls.xyz', {
       value: ethers.utils.parseEther('0.1'),
     })
 
-    const origins = await contract.originsForSender()
+    const origins = await contract.originsForOwner(acc.address)
     expect(origins).to.deep.equal(['http://example.com', 'https://crcls.xyz'])
   })
 

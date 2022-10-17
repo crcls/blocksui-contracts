@@ -78,11 +78,11 @@ contract BUIOriginRegistry is Ownable {
         return _ownerOfOrigin[origin] == owner;
     }
 
-    function originsForSender() public view returns (string[] memory) {
-        string[] memory origins = new string[](_originsForAddress[msg.sender].length);
+    function originsForOwner(address owner) public view returns (string[] memory) {
+        string[] memory origins = new string[](_originsForAddress[owner].length);
 
-        for (uint i = 0; i < _originsForAddress[msg.sender].length; i++) {
-            bytes32 origin = _originsForAddress[msg.sender][i];
+        for (uint i = 0; i < _originsForAddress[owner].length; i++) {
+            bytes32 origin = _originsForAddress[owner][i];
             origins[i] = _domainForOrigin[origin];
         }
 
