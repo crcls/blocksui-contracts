@@ -27,12 +27,6 @@ describe('BUIBlockNFT', function () {
       await expect(
         contract.setDeprecated(1, Math.round(Date.now() / 1000))
       ).to.be.revertedWith('ERC721: invalid token ID')
-      await expect(contract.setOrigin(1, 'test')).to.be.revertedWith(
-        'ERC721: invalid token ID'
-      )
-      await expect(contract.removeOrigin(1, 'test')).to.be.revertedWith(
-        'ERC721: invalid token ID'
-      )
     })
 
     it('fails to fetch data for non-existing block', async () => {
@@ -72,7 +66,7 @@ describe('BUIBlockNFT', function () {
     it('succeeds in finding the new token by cid', async () => {
       const [acc] = await ethers.getSigners()
       expect(await contract.blockExists(cid)).to.be.true
-      expect(await contract.ownerOfBlock(cid, acc.address)).to.be.true
+      expect(await contract.verifyOwner(cid, acc.address)).to.be.true
     })
 
     it('prevents other account from updating the Block meta', async () => {
@@ -85,29 +79,17 @@ describe('BUIBlockNFT', function () {
       await expect(
         contract.connect(acc).setDeprecated(1, Math.round(Date.now() / 1000))
       ).to.be.revertedWith(revertMsg)
-      await expect(
-        contract.connect(acc).setOrigin(1, 'test')
-      ).to.be.revertedWith(revertMsg)
-      await expect(
-        contract.connect(acc).removeOrigin(1, 'test')
-      ).to.be.revertedWith(revertMsg)
     })
 
     it('allows the owner to update the Block meta', async () => {
       await expect(contract.updateMetaURI(1, 'test')).to.not.be.reverted
       await expect(contract.setDeprecated(1, Math.round(Date.now() / 1000))).to
         .not.be.reverted
-      await expect(contract.setOrigin(1, 'test')).to.not.be.reverted
-      await expect(contract.removeOrigin(1, 'test')).to.not.be.reverted
     })
 
     it('returns the proper block values', async () => {
-      await contract.setOrigin(1, 'http://example.com')
-      const [cid, origins] = await contract.blockForToken(1)
-
+      const cid = await contract.blockForToken(1)
       expect(getIpfsHashFromBytes32(cid)).to.equal(ipfsHash)
-      expect(origins.length).to.equal(1)
-      expect(origins[0]).to.equal('http://example.com')
     })
   })
 })

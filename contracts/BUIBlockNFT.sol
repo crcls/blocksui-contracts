@@ -76,70 +76,12 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
         emit BUIBlockDeprecated(tokenId);
     }
 
-    function setOrigin(uint256 tokenId, string memory origin) external onlyBlockOwner(tokenId) {
-        Block storage bui = _blockForToken(tokenId);
-
-        for (uint i = 0; i < bui.origins.length; i++) {
-            bytes32 existingOrigin = keccak256(abi.encodePacked(bui.origins[i]));
-
-            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
-                revert("Origin already exists");
-            }
-        }
-
-        bui.origins.push(origin);
-    }
-
-    function removeOrigin(uint256 tokenId, string memory origin) external onlyBlockOwner(tokenId) {
-        Block storage bui = _blockForToken(tokenId);
-
-        string[] storage origins = bui.origins;
-
-        for (uint i = 0; i < origins.length; i++) {
-            bytes32 matchingOrigin = keccak256(abi.encodePacked(bui.origins[i]));
-
-            if (matchingOrigin == keccak256(abi.encodePacked(origin))) {
-                // Overwrite and shift remaining origins
-                for (uint j = i; j < origins.length-1; j++) {
-                    origins[j] = origins[j+1];
-                }
-                origins.pop();
-
-                // Save the new origins array
-                bui.origins = origins;
-
-                emit BUIBlockOriginRemoved(tokenId, origin);
-                break;
-            }
-        }
-    }
-
-    function originAuthorized(bytes32 cid, string calldata origin) external view returns (bool) {
-        Block storage bui = _blocks[cid];
-
-        for (uint i = 0; i < bui.origins.length; i++) {
-            bytes32 existingOrigin = keccak256(abi.encodePacked(bui.origins[i]));
-
-            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     function verifyOwner(bytes32 cid, address owner) external view returns (bool) {
         return _blocks[cid].owner == owner;
     }
 
     function blockExists(bytes32 cid) external view returns (bool) {
         return _blocks[cid].owner != address(0);
-    }
-
-    function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string[] memory origins) {
-        Block storage bui = _blockForToken(tokenId);
-
-        return (_tokenizedBlocks[tokenId], bui.origins);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
@@ -149,6 +91,11 @@ contract BUIBlockNFT is ERC721, Ownable, IBUIBlockNFT {
 
     function setPublishPrice(uint256 _publishPrice) external onlyOwner {
         publishPrice = _publishPrice;
+    }
+
+    function blockForToken(uint256 tokenId) external view returns (bytes32) {
+        require(_exists(tokenId), "Token does not exist");
+        return _tokenizedBlocks[tokenId];
     }
 
     function _blockForToken(uint256 tokenId) internal view returns (Block storage) {

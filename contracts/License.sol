@@ -5,6 +5,6 @@ struct License {
     uint blockId;
     bytes32 cid;
     uint256 expirationDate;
-    string origin;
     address owner;
+    bytes32 origin;
 }

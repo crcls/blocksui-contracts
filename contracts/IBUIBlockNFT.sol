@@ -13,9 +13,8 @@ interface IBUIBlockNFT is IERC721 {
 
     event BUIBlockDeprecated(uint256 tokenId);
     event BUIBlockMetadataUpdated(uint256 tokenId);
-    event BUIBlockOriginRemoved(uint256 tokenId, string origin);
 
-    function blockForToken(uint256 tokenId) external view returns (bytes32 cid, string[] memory origins);
+    function blockForToken(uint256 tokenId) external view returns (bytes32);
 
     function verifyOwner(bytes32 cid, address owner) external view returns (bool);
 

@@ -6,5 +6,4 @@ struct Block {
     uint256 deprecateDate;
     string metaURI;
     address owner;
-    string[] origins;
 }

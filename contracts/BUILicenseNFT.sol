@@ -33,20 +33,12 @@ contract BUILicenseNFT is ERC721, Ownable {
         payable(owner()).transfer(balance);
     }
 
-    function purchaseLicense(uint256 blockId, uint256 duration, string memory origin) external payable {
+    function purchaseLicense(uint256 blockId, uint256 duration, bytes32 origin) external payable {
         require(_blockNFTs.ownerOf(blockId) != address(0), "Block does not exist");
         require(_blockNFTs.ownerOf(blockId) != msg.sender, "License not required for Block owner");
 
         Listing memory listing = _marketplace.listingForTokenId(blockId);
-        (bytes32 cid, string[] memory origins) = _blockNFTs.blockForToken(blockId);
-
-        for (uint i = 0; i < origins.length; i++) {
-            bytes32 existingOrigin = keccak256(abi.encodePacked(origins[i]));
-
-            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
-                revert("Origin is already authorized");
-            }
-        }
+        bytes32 cid = _blockNFTs.blockForToken(blockId);
 
         require(listing.owner != address(0), "No listing for this Block");
         require(listing.licensable, "Block cannot be licensed");
@@ -65,9 +57,8 @@ contract BUILicenseNFT is ERC721, Ownable {
             blockId,
             cid,
             block.timestamp + duration,
-            origin,
-            msg.sender
-
+            msg.sender,
+            origin
         );
 
         // TODO: use chainlink to auto burn this license when the expiration date is past
@@ -90,16 +81,7 @@ contract BUILicenseNFT is ERC721, Ownable {
         return false;
     }
 
-    function originAuthorized(bytes32 cid, string calldata origin) external view returns (bool) {
-        for (uint i = 0; i < _licensesForBlock[cid].length; i++) {
-            License storage license = _licenses[_licensesForBlock[cid][i]];
-            bytes32 existingOrigin = keccak256(abi.encodePacked(license.origin));
-
-            if (existingOrigin == keccak256(abi.encodePacked(origin))) {
-                return true;
-            }
-        }
-
-        return false;
+    function verifyOrigin(uint256 tokenId, bytes32 origin) public view returns (bool) {
+        return _licenses[tokenId].origin == origin;
     }
 }

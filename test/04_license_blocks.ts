@@ -7,6 +7,9 @@ import { getBytes32FromIpfsHash } from '../helpers/bytes'
 const ipfsHash = 'QmWmyoMoctfbAaiEs2G46gpeUmhqFRDW6KWo64y5r581Vz'
 const cid = getBytes32FromIpfsHash(ipfsHash)
 const thirtyDays = 60 * 60 * 24 * 30
+const origin = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes('http://example.com')
+)
 
 describe('BUILicenseNFT', function () {
   let blockContract: Contract | undefined
@@ -48,13 +51,13 @@ describe('BUILicenseNFT', function () {
 
   it('fails when block does not exist', async () => {
     await expect(
-      contract.purchaseLicense(2, thirtyDays, 'http://example.com')
+      contract.purchaseLicense(2, thirtyDays, origin)
     ).to.be.revertedWith('ERC721: invalid token ID')
   })
 
   it('fails if the sender if the Block owner', async () => {
     await expect(
-      contract.purchaseLicense(1, thirtyDays, 'http://example.com', {
+      contract.purchaseLicense(1, thirtyDays, origin, {
         value: ethers.utils.parseEther('0.003'),
       })
     ).to.be.revertedWith('License not required for Block owner')
@@ -72,7 +75,7 @@ describe('BUILicenseNFT', function () {
     )
 
     await expect(
-      contract.connect(acc).purchaseLicense(2, thirtyDays, 'http://example.com')
+      contract.connect(acc).purchaseLicense(2, thirtyDays, origin)
     ).to.be.revertedWith('No listing for this Block')
   })
 
@@ -89,16 +92,15 @@ describe('BUILicenseNFT', function () {
     )
 
     await expect(
-      contract.connect(acc).purchaseLicense(2, thirtyDays, 'http://example.com')
+      contract.connect(acc).purchaseLicense(2, thirtyDays, origin)
     ).to.be.revertedWith('Block cannot be licensed')
   })
 
   it('fails with insufficient funds', async () => {
     const [, acc] = await ethers.getSigners()
 
-    await expect(
-      contract.connect(acc).purchaseLicense(1, thirtyDays, 'http://example.com')
-    ).to.be.revertedWith('Insufficient funds for license')
+    await expect(contract.connect(acc).purchaseLicense(1, thirtyDays, origin))
+      .to.be.reverted
   })
 
   it('succeeds to license a Block', async () => {
@@ -106,7 +108,7 @@ describe('BUILicenseNFT', function () {
 
     const tx = await contract
       .connect(acc)
-      .purchaseLicense(1, thirtyDays, 'http://example.com', {
+      .purchaseLicense(1, thirtyDays, origin, {
         value: ethers.utils.parseEther('0.003'),
       })
 

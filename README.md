@@ -1,3 +1,7 @@
+# ⚠️ WIP: This project is being actively worked on.👷
+
+Please see the [Contributing Guide](#-contributing) below.
+
 <p align="center">
   <a href="https://blocksui.xyz/">
     <img alt="Blocks UI Protocol" src="assets/blocksui.png" width="320" />
@@ -32,41 +36,19 @@
   <a href="https://litprotocol.com/" style="display: inline-block">
     <img src="assets/lit-protocol.svg" alt="Lit Protocol logo" width="54">
   </a>
-  <a href="https://moralis.io/" style="display: inline-block">
-    <img src="assets/moralis.svg" alt="Moralis logo" width="154">
-  </a>
   <a href="https://polygon.technology/" style="display: inline-block">
     <img src="assets/polygon.svg" alt="Polygon logo" width="166">
-  </a>
-  <a href="https://web3.storage/" style="display: inline-block">
-    <img src="assets/web3-storage.svg" alt="Web3 Storage logo" width="40">
   </a>
 </p>
 
 ## Table of Contents
 
-- [Moralis + Filecoin 1-2-Web3 Hackathon](#moralis--filecoin-1-2-web3-hackathon)
-  - [Use of hackathon tech](#use-of-hackathon-tech)
 - [Contributing](#contributing)
   - [Types](#types)
   - [Branches](#branches)
   - [Commits](#commits)
   - [Pull Requests](#pull-requests)
   - [Merging Into Main](#merging-into-main)
-
-# Moralis + Filecoin 1-2-Web3 Hackathon.
-
-This project is the entry to the [Moralis](https://moralis.io/) x [Filecoin](https://filecoin.io/) hackathon from the [CRCLS](https://github.com/crcls) team. It consists of five repositories:
-
-- [Blocks UI App](https://github.com/crcls/blocksui-app)
-- [Blocks UI Blocks](https://github.com/crcls/blocksui-blocks)
-- [Blocks UI Contracts](https://github.com/crcls/blocksui-contract)
-- [Blocks UI Network](https://github.com/crcls/blocksui-network)
-- [Blocks UI SDK](https://github.com/crcls/blocksui-sdk)
-
-## Use of hackathon tech
-
-1. [hardhat.config.ts L19-L21](https://github.com/crcls/blocksui-contracts/blob/main/hardhat.config.ts#L19-L21) - Used Web3.Storage to upload the contract configs for the app to use.
 
 ## 🤝 Contributing
 
